@@ -8,6 +8,7 @@ class Node{
 	int label;
 	Node *leftNode;
 	Node *rightNode;
+	Node *parentNode;
 	double split;
 	int feature;
 	int number;
@@ -20,7 +21,8 @@ class Node{
 			
 			leftNode = NULL;
 			rightNode = NULL;
-
+			parentNode = NULL;
+			
 			split = -1;
 			label = -1;
 			feature = -1;
@@ -44,22 +46,22 @@ class Node{
 	double calcEntropy(int feature, double splitVal){
 
     	// <= counter 
-    	int lessEqCount = 0;
+    	double lessEqCount = 0;
 
     	// > counter
-    	int greatCount = 0;
+    	double greatCount = 0;
 
     	double pOne = 0;
     	double pTwo = 0;
     	double pThree = 0;
 
     	// Counts how many of each label fall on the split
-    	int labelOneCountGr = 0, labelOneCountLt = 0;
-    	int labelTwoCountGr = 0, labelTwoCountLt = 0;
-    	int labelThreeCountGr = 0, labelThreeCountLt = 0;
+    	double labelOneCountGr = 0, labelOneCountLt = 0;
+    	double labelTwoCountGr = 0, labelTwoCountLt = 0;
+    	double labelThreeCountGr = 0, labelThreeCountLt = 0;
 
     	// counts total number of each label
-    	int countLabelOne = 0, countLabelTwo = 0, countLabelThree = 0;
+    	double countLabelOne = 0, countLabelTwo = 0, countLabelThree = 0;
 
     	for(int i = 0; i < dataPointVectors.size(); i++){
     		//cout<<"datapointvectors:  "<< dataPointVectors[i][feature];
@@ -105,12 +107,12 @@ class Node{
     	}
 
     	// Get probabilities and end entropies
-    	double ltp = lessEqCount / dataPointVectors.size();
-    	double gtp = greatCount / dataPointVectors.size();
-    	if(gtp > 0)
+    	double ltp = lessEqCount / (double)dataPointVectors.size();
+    	double gtp = greatCount / (double)dataPointVectors.size();
+    	/*if(gtp > 0)
     	cout<<"ltp:  "<<ltp<<endl;
     	if(gtp > 0)
-    		cout<<"gtp:  "<<gtp<<endl;
+    		cout<<"gtp:  "<<gtp<<endl;*/
     	//cout<<"size:  "<<dataPointVectors.size()<<endl;
 		if(lessEqCount == 0){
 			pOne = 0;
@@ -168,7 +170,7 @@ class Node{
     	if(ltp == 0 || gtp == 0){
     		return 1;
     	}
-    	cout<< "Value "<< value << endl;//" "<<labelOneCountGr<<endl;
+    	//cout<< "Value "<< value << endl;//" "<<labelOneCountGr<<endl;
     	return value;
 	}
 };

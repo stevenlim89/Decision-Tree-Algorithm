@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <sstream>
 #include "node.cpp"
+#include <iomanip>
 
 int nodeCount = 0;
 bool featOne = false;
@@ -118,7 +119,7 @@ Node* createNode(vector< vector<double> > dataPointsVectors){
     //cout << "data size:" <<dataPointsVectors.size() << endl;
 
     Node *n = new Node(dataPointsVectors, nodeCount++);
-    cout<<"Node created"<<endl;
+    //cout<<"Node created"<<endl;
     if(n->isPure()){
         n->label = dataPointsVectors[0][4];
         return n;
@@ -133,15 +134,15 @@ Node* createNode(vector< vector<double> > dataPointsVectors){
            // cout << "temp:" << temp << endl;
             if(minEntropy == -1){
                 n->split = j;
-                n->feature = i+1;
-                //cout<<"Split: "<<n->split<<endl;
+                n->feature = i;
+                //cout<<"first split: "<<n->split<<endl;
                 minEntropy = temp;
             }
             else if(temp < minEntropy){
                 minEntropy = temp;
-                n->feature = i + 1;
+                n->feature = i;
                 n->split = j;
-                 cout<<"Split: "<<n->split<<endl;
+                 //cout<<"Split: "<<n->split<<endl;
             }
             //cout << minEntropy << endl;
         }
@@ -162,6 +163,11 @@ Node* createNode(vector< vector<double> > dataPointsVectors){
     //cout<<"Child nodes "<<rightVectors[0][0]<<endl;
     n->leftNode = createNode(leftVectors);
     n->rightNode = createNode(rightVectors);
+
+    if(n->leftNode != NULL)
+        n->leftNode->parentNode = n;
+    if(n->rightNode != NULL)
+        n->rightNode->parentNode = n;
 
     // if leaf node, set label 
     if(n->leftNode == NULL && n->rightNode == NULL){
@@ -200,7 +206,23 @@ Node* createNode(vector< vector<double> > dataPointsVectors){
 
     return n;
 }
-
+void postorder(Node* p, int indent)
+{
+    if(p != NULL) {
+        if(p->rightNode) {
+            postorder(p->rightNode, indent+4);
+        }
+        if (indent) {
+            cout << setw(indent) << ' ';
+        }
+        if (p->rightNode) cout<<" /\n" << setw(indent) << ' ';
+            cout<< p->number << "\n ";
+        if(p->leftNode) {
+            cout << setw(indent) << ' ' <<" \\\n";
+            postorder(p->leftNode, indent+4);
+        }
+    }
+}
 int main() {
     string trainingFile = "hw3train.txt";
     string testFile = "hw3test.txt";
@@ -209,6 +231,9 @@ int main() {
     vector< vector<double> > testMatrix = fileToMatrix(testFile);
 
     Node *root = createNode(trainingMatrix);
+
+    postorder(root, 1);
+
    
     return 0;
 }
