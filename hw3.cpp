@@ -103,15 +103,22 @@ void setFeatureUsed (int i) {
 }
 
 Node* createNode(vector< vector<double> > dataPointsVectors){
+    if(featureUsed(0) && featureUsed(1) && featureUsed(2) && featureUsed(3)){
+        return NULL;
+    }
+
     double temp = 0;
     double minEntropy = -1;
+
+    int labelOneCount = 0, labelTwoCount = 0, labelThreeCount = 0;
 
     vector< vector<double> > leftVectors;
     vector< vector<double> > rightVectors;
 
+    //cout << "data size:" <<dataPointsVectors.size() << endl;
+
     Node *n = new Node(dataPointsVectors, nodeCount++);
-
-
+    cout<<"Node created"<<endl;
     if(n->isPure()){
         n->label = dataPointsVectors[0][4];
         return n;
@@ -121,17 +128,24 @@ Node* createNode(vector< vector<double> > dataPointsVectors){
         if(featureUsed(i)){
             continue;
         }
-        for(double j = 0; j < 8; j += 0.1){
+        for(double j = 0.1; j < 7.8; j += 0.1){
             temp = n->calcEntropy(i, j);
+           // cout << "temp:" << temp << endl;
             if(minEntropy == -1){
+                n->split = j;
+                n->feature = i+1;
+                //cout<<"Split: "<<n->split<<endl;
                 minEntropy = temp;
             }
             else if(temp < minEntropy){
                 minEntropy = temp;
                 n->feature = i + 1;
                 n->split = j;
+                 cout<<"Split: "<<n->split<<endl;
             }
+            //cout << minEntropy << endl;
         }
+
     }
 
     setFeatureUsed(n->feature);
@@ -139,14 +153,50 @@ Node* createNode(vector< vector<double> > dataPointsVectors){
     for(int i = 0; i < dataPointsVectors.size(); i++){
         if(dataPointsVectors[i][n->feature] <= n->split){
             leftVectors.push_back(dataPointsVectors[i]);
+            //cout<<"Does it go in here"<<endl;
         }
         else{
             rightVectors.push_back(dataPointsVectors[i]);
         }
     }
-
+    //cout<<"Child nodes "<<rightVectors[0][0]<<endl;
     n->leftNode = createNode(leftVectors);
     n->rightNode = createNode(rightVectors);
+
+    // if leaf node, set label 
+    if(n->leftNode == NULL && n->rightNode == NULL){
+        for(int i = 0; i < dataPointsVectors.size(); i++){
+            if(dataPointsVectors[i][4] == 1){
+                labelOneCount++;
+            }
+            else if(dataPointsVectors[i][4] == 2){
+                labelTwoCount++;
+            }
+            else if(dataPointsVectors[i][4] == 3){
+                labelThreeCount++;
+            }
+        }
+
+
+        // Trying to find majority label
+        int max = 0;
+        int temp = 0;
+        for(int i = 0; i < 3; i++){
+            if(i == 0 && labelOneCount > max){
+                max = labelOneCount;
+                temp = i;
+            }
+            if(i == 1 && labelTwoCount > max){
+                max = labelTwoCount;
+                temp = i;
+            }
+            if(i == 2 && labelThreeCount > max){
+                max = labelThreeCount;
+                temp = i;
+            }
+        }
+        n->label = temp;
+    }
 
     return n;
 }
@@ -157,6 +207,8 @@ int main() {
 
     vector< vector<double> > trainingMatrix = fileToMatrix(trainingFile);
     vector< vector<double> > testMatrix = fileToMatrix(testFile);
+
+    Node *root = createNode(trainingMatrix);
    
     return 0;
 }
