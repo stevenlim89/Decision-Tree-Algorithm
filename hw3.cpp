@@ -104,14 +104,9 @@ void setFeatureUsed (int i) {
 }
 
 Node* createNode(vector< vector<double> > dataPointsVectors){
-    if(featureUsed(0) && featureUsed(1) && featureUsed(2) && featureUsed(3)){
-        return NULL;
-    }
 
     double temp = 0;
     double minEntropy = -1;
-
-    int labelOneCount = 0, labelTwoCount = 0, labelThreeCount = 0;
 
     vector< vector<double> > leftVectors;
     vector< vector<double> > rightVectors;
@@ -119,9 +114,12 @@ Node* createNode(vector< vector<double> > dataPointsVectors){
     //cout << "data size:" <<dataPointsVectors.size() << endl;
 
     Node *n = new Node(dataPointsVectors, nodeCount++);
-    //cout<<"Node created"<<endl;
+    if(featureUsed(0) && featureUsed(1) && featureUsed(2) && featureUsed(3)){
+        return n;
+    }
+
     if(n->isPure()){
-        n->label = dataPointsVectors[0][4];
+        //n->label = dataPointsVectors[0][4];
         return n;
     }
 
@@ -169,60 +167,45 @@ Node* createNode(vector< vector<double> > dataPointsVectors){
     if(n->rightNode != NULL)
         n->rightNode->parentNode = n;
 
-    // if leaf node, set label 
-    if(n->leftNode == NULL && n->rightNode == NULL){
-        for(int i = 0; i < dataPointsVectors.size(); i++){
-            if(dataPointsVectors[i][4] == 1){
-                labelOneCount++;
-            }
-            else if(dataPointsVectors[i][4] == 2){
-                labelTwoCount++;
-            }
-            else if(dataPointsVectors[i][4] == 3){
-                labelThreeCount++;
-            }
-        }
-
-
-        // Trying to find majority label
-        int max = 0;
-        int temp = 0;
-        for(int i = 0; i < 3; i++){
-            if(i == 0 && labelOneCount > max){
-                max = labelOneCount;
-                temp = i;
-            }
-            if(i == 1 && labelTwoCount > max){
-                max = labelTwoCount;
-                temp = i;
-            }
-            if(i == 2 && labelThreeCount > max){
-                max = labelThreeCount;
-                temp = i;
-            }
-        }
-        n->label = temp;
-    }
-
     return n;
 }
-void postorder(Node* p, int indent)
-{
-    if(p != NULL) {
-        if(p->rightNode) {
-            postorder(p->rightNode, indent+4);
+
+void preorder(Node *n){
+    if(n == NULL)
+        return;
+    n->printNode();
+    preorder(n->leftNode);
+    preorder(n->rightNode);
+}
+
+double testError(Node * root, vector< vector<double> > Flowers) {
+    Node *currentnode = root;
+    double numErrors = 0;
+
+    for (int i =0; i < Flowers.size(); i++) {
+        currentnode = root;
+        //while currentNode is not a leaf
+        while( (currentnode->leftNode != NULL && currentnode->rightNode != NULL)) {
+
+            if(Flowers[i][currentnode->feature] <= currentnode->split){
+                currentnode = currentnode->leftNode;
+            }    
+            else {
+                currentnode = currentnode->rightNode;
+            }
+
         }
-        if (indent) {
-            cout << setw(indent) << ' ';
-        }
-        if (p->rightNode) cout<<" /\n" << setw(indent) << ' ';
-            cout<< p->number << "\n ";
-        if(p->leftNode) {
-            cout << setw(indent) << ' ' <<" \\\n";
-            postorder(p->leftNode, indent+4);
+
+        if(currentnode->label != Flowers[i][4]){
+            numErrors++;        
         }
     }
+
+    //return error
+    return numErrors/(double)Flowers.size();
+
 }
+
 int main() {
     string trainingFile = "hw3train.txt";
     string testFile = "hw3test.txt";
@@ -232,8 +215,9 @@ int main() {
 
     Node *root = createNode(trainingMatrix);
 
-    postorder(root, 1);
 
+    preorder(root);
+    cout<<"Test Error: "<< testError(root, testMatrix)<<endl;
    
     return 0;
 }

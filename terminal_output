@@ -1,0 +1,45 @@
+this node: 0
+Size: 100
+SPLIT:: feature: 2 <= split value: 1.9
+
+Parent Number: 0 (Left Child)
+this node: 1
+Size: 36
+Label: 1
+
+Parent Number: 0(Right Child)
+this node: 2
+Size: 64
+SPLIT:: feature: 3 <= split value: 1.6
+
+Parent Number: 2 (Left Child)
+this node: 3
+Size: 32
+SPLIT:: feature: 0 <= split value: 5.9
+
+Parent Number: 3 (Left Child)
+this node: 4
+Size: 17
+Label: 2
+
+Parent Number: 3(Right Child)
+this node: 5
+Size: 15
+SPLIT:: feature: 1 <= split value: 2.8
+
+Parent Number: 5 (Left Child)
+this node: 6
+Size: 7
+Label: 2
+
+Parent Number: 5(Right Child)
+this node: 7
+Size: 8
+Label: 2
+
+Parent Number: 2(Right Child)
+this node: 8
+Size: 32
+Label: 3
+
+Test Error: 0.04

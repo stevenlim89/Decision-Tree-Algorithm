@@ -14,24 +14,46 @@ class Node{
 	int number;
 	vector< vector<double> > dataPointVectors;
 
-	//public: 
-		Node(vector< vector<double> > v, int key){
-			dataPointVectors = v;
-			number = key;
-			
-			leftNode = NULL;
-			rightNode = NULL;
-			parentNode = NULL;
-			
-			split = -1;
-			label = -1;
-			feature = -1;
-		}
+	Node(vector< vector<double> > v, int key){
+		dataPointVectors = v;
+		number = key;
+		
+		leftNode = NULL;
+		rightNode = NULL;
+		parentNode = NULL;
+
+		split = -1;
+		setLabel();
+		feature = -1;
+	}
+
+	void printNode() {
+
+		if (this->parentNode) {
+        	cout << "Parent Number: " << this->parentNode->number;
+       		if (this->parentNode->leftNode == this) {
+            	cout << " (Left Child)" << endl;
+        	}
+        	if (this->parentNode->rightNode == this) {
+            	cout << "(Right Child)" << endl;
+        	}
+    	}
+    	
+    	cout << "this node: " << this->number << endl;
+    	cout<<"Size: "<< this->dataPointVectors.size()<<endl;
+
+    	if(this->split == -1 && this->feature == -1){
+    		cout << "Label: " << this->label << endl;
+    	}
+    	else{
+    		cout << "SPLIT:: feature: " << this->feature << " <= " << "split value: " << this->split << endl;
+    	}
+    	cout << endl;	
+	}
 
 	bool isPure(){
 		int label1 = dataPointVectors[0][4];
 		// loop through datapointvectors
-		//cout<<"beginning "<<endl;
 		for(int i = 0; i < dataPointVectors.size(); i++){
 		//	cout<<"in loop"<<endl;
 			int labeli = dataPointVectors[i][4];
@@ -42,6 +64,43 @@ class Node{
 		//cout<<"end of function "<<endl;
 		return true;
 	}
+
+	void setLabel() {
+
+		int labelOneCount = 0, labelTwoCount = 0, labelThreeCount = 0;
+
+        for(int i = 0; i < dataPointVectors.size(); i++){
+            if(dataPointVectors[i][4] == 1){
+                labelOneCount++;
+            }
+            else if(dataPointVectors[i][4] == 2){
+                labelTwoCount++;
+            }
+            else if(dataPointVectors[i][4] == 3){
+                labelThreeCount++;
+            }
+        }
+
+
+        // Trying to find majority label
+        int max = 0;
+        int temp = 0;
+        for(int i = 0; i < 3; i++){
+            if(i == 0 && labelOneCount > max){
+                max = labelOneCount;
+                temp = i;
+            }
+            if(i == 1 && labelTwoCount > max){
+                max = labelTwoCount;
+                temp = i;
+            }
+            if(i == 2 && labelThreeCount > max){
+                max = labelThreeCount;
+                temp = i;
+            }
+        }
+        this->label = temp + 1;
+    }
 
 	double calcEntropy(int feature, double splitVal){
 
